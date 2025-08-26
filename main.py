@@ -2,8 +2,10 @@ import requests
 import os
 import time
 import image_downloader
+from dotenv import load_dotenv
 
-ACCESS_KEY = os.getenv("UNSPLASH_ACCESS_KEY")
+load_dotenv()
+ACCESS_KEY = os.environ.get("UNSPLASH_ACCESS_KEY")
 
 class UnsplashImageDownloader:
     def __init__(self, query):
@@ -24,7 +26,7 @@ class UnsplashImageDownloader:
             except ValueError:
                 raise Exception(f"Response is not valid JSON: {rs.text[:200]}")  # show first 200 chars
 
-        return json_data["total"]
+        return json_data.get("total", 0)
 
     def get_links(self, pages_, quality_):
         all_links = []
