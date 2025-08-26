@@ -3,18 +3,26 @@ import os
 import time
 import image_downloader
 
+ACCESS_KEY = os.getenv("UNSPLASH_ACCESS_KEY")
 
 class UnsplashImageDownloader:
     def __init__(self, query):
         self.querystring = {"query": f"{query}", "per_page": "20"}
-        self.headers = {"cookie": "ugid=aacdcdf3a2acebee349c2e196e621b975571725"}
-        self.url = "https://unsplash.com/napi/search/photos"
+        self.headers = {"Authorization": f"Client-ID {ACCESS_KEY}"}
+        self.url = "https://api.unsplash.com/search/photos"
 
         self.query = query
 
     def get_total_images(self):
         with requests.request("GET", self.url, headers=self.headers, params=self.querystring) as rs:
-            json_data = rs.json()
+            # Check if request succeeded
+            if rs.status_code != 200:
+                raise Exception(f"Request failed: {rs.status_code} - {rs.text}")
+
+            try:
+                json_data = rs.json()
+            except ValueError:
+                raise Exception(f"Response is not valid JSON: {rs.text[:200]}")  # show first 200 chars
 
         return json_data["total"]
 
